@@ -1,7 +1,11 @@
 import express from "express";
 import cors from "cors";
-import nodemailer from "nodemailer";
+// import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 
 dotenv.config();
 
@@ -12,15 +16,15 @@ app.use(cors());
 app.use(express.json());
 
 // Email transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   host: process.env.EMAIL_HOST,
+//   port: process.env.EMAIL_PORT,
+//   secure: false,
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
 
 // ---------- CONTACT FORM ----------
 // app.post("/api/contact", async (req, res) => {
@@ -53,14 +57,14 @@ const transporter = nodemailer.createTransport({
 app.post("/api/contact", (req, res) => {
   const { name, email, phone, company, message } = req.body;
 
-  // ✅ Respond instantly
+  // ✅ Respond instantly (UX)
   res.json({ success: true });
 
-  // 🔥 Send email asynchronously (fire & forget)
-  transporter
-    .sendMail({
-      from: `"SmooothGrow Leads" <${process.env.EMAIL_USER}>`,
-      to: process.env.RECEIVER_EMAIL,
+  // 🔥 Send email asynchronously
+  resend.emails
+    .send({
+      from: "SmooothGrow <onboarding@resend.dev>",
+      to: [process.env.RECEIVER_EMAIL],
       subject: "New Contact Lead 🚀",
       html: `
         <h2>New Contact Lead</h2>
@@ -71,8 +75,9 @@ app.post("/api/contact", (req, res) => {
         <p><b>Message:</b><br/>${message}</p>
       `,
     })
-    .catch((err) => console.error("Email error:", err));
+    .catch((err) => console.error("Resend error:", err));
 });
+
 
 
 // ---------- QUOTE FORM ----------
@@ -115,10 +120,10 @@ app.post("/api/quote", (req, res) => {
   res.json({ success: true });
 
   // 🔥 Async email
-  transporter
-    .sendMail({
-      from: `"SmooothGrow Leads" <${process.env.EMAIL_USER}>`,
-      to: process.env.RECEIVER_EMAIL,
+  resend.emails
+    .send({
+      from: "SmooothGrow <onboarding@resend.dev>",
+      to: [process.env.RECEIVER_EMAIL],
       subject: "New Quote Request 📈",
       html: `
         <h2>New Quote Request</h2>
@@ -131,8 +136,9 @@ app.post("/api/quote", (req, res) => {
         <p><b>Timeline:</b> ${timeline}</p>
       `,
     })
-    .catch((err) => console.error("Email error:", err));
+    .catch((err) => console.error("Resend error:", err));
 });
+
 
 
 // Start server
