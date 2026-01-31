@@ -4,11 +4,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 
 dotenv.config();
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 const app = express();
 
 // Middleware
@@ -142,6 +142,8 @@ app.post("/api/quote", (req, res) => {
 
 
 // Start server
-app.listen(process.env.PORT, () => {
-  console.log(`🚀 Server running on port ${process.env.PORT}`);
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
